@@ -23,9 +23,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Radial Menu")
 	float Radius = 100.0f;
 
-	/* In degree */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Radial Menu")
-	float AngleOffset = -90.0f;
+	bool TopAlign = false;
+
+	float Offset = 0;
 
 protected:
 	float Theta;

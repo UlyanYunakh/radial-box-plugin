@@ -20,7 +20,12 @@ void URadialBox::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEv
 
 FVector2D URadialBox::GetStartVector()
 {	
-	float angleOffsetRad = FMath::DegreesToRadians(90 + AngleOffset);
+	float angleOffset = 0;
+	if (Slots.Num() > 0)
+	{
+		angleOffset = TopAlign ? PI / Slots.Num() : 0;
+	}
+	float angleOffsetRad = (PI / 2) - angleOffset;
 	return FVector2D(FMath::Cos(angleOffsetRad), FMath::Sin(angleOffsetRad));
 }
 
@@ -49,8 +54,14 @@ TSharedRef<SWidget> URadialBox::RebuildWidget()
 
 	if (Slots.Num() > 0)
 	{
-		Theta = (PI * 2) / Slots.Num();
-		float currAngle = Theta / 2 + FMath::DegreesToRadians(AngleOffset) - PI / 2;
+		Theta = (PI * 2) / Slots.Num(); 
+
+		float angleOffset = 0;
+		if (Slots.Num() > 0)
+		{
+			angleOffset = TopAlign ? PI / Slots.Num() : 0;
+		}
+		float currAngle = Theta / 2 - angleOffset - PI / 2;
 
 		for (UPanelSlot* PanelSlot : Slots)
 		{

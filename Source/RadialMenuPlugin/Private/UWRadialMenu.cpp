@@ -6,6 +6,16 @@
 #include "RadialBox.h"
 #include "UWRadialMenuItem.h"
 
+void UUWRadialMenu::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (RadialBox)
+	{
+		Origin = RadialBox->GetStartVector();
+	}
+}
+
 void UUWRadialMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
@@ -15,10 +25,22 @@ void UUWRadialMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	SelectItem();
 }
 
+FReply UUWRadialMenu::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (HoveredItem)
+	{
+		OnItemSelected(HoveredItem);
+
+		return FReply::Handled();
+	}
+
+	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+}
+
 void UUWRadialMenu::CalculateAngle(const FGeometry& MyGeometry)
 {
 	FGeometry geometry = MyGeometry;
-	FVector2D A;
+	FVector2D A; 
 
 	if (RadialBox)
 	{
@@ -37,9 +59,21 @@ void UUWRadialMenu::CalculateAngle(const FGeometry& MyGeometry)
 	float cosTheta = FVector2D::DotProduct(A, B);
 	float cross = FVector2D::CrossProduct(A, B);
 	float offset = cross < 0 ? PI : 0;
+	PrevAngle = Angle;
 	Angle = FMath::Acos(cosTheta * FMath::Sign(cross)) + offset;
 
-	UE_LOG(LogTemp, Log, TEXT("RadialMenu: angle = %f"), FMath::RadiansToDegrees(Angle));
+	offset = PI / 2 - FMath::Acos(A.X);
+	A = Origin;
+
+	cosTheta = FVector2D::DotProduct(A, B);
+	//offset = cross < 0 ? PI : 0;
+
+	AngleDiff = FMath::Acos(cosTheta) - PI / 2 + offset;
+
+	Origin = FVector2D(FMath::Cos(Angle), FMath::Sin(Angle));
+
+	UE_LOG(LogTemp, Log, TEXT("angle %f"), AngleDiff);
+	//UE_LOG(LogTemp, Log, TEXT("RadialMenu: angle = %f"), FMath::RadiansToDegrees(Angle));
 }
 
 void UUWRadialMenu::SelectItem()
